@@ -1,0 +1,183 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01//EN"
+  "http://www.w3.org/TR/html4/strict.dtd">
+<html>
+<head>
+  <title>MacroMap Starcraft 2</title>
+  <link rel="stylesheet" href="css/styles.css" media="screen" />
+  
+  <!--script type="text/javascript" charset="utf-8" src="jquery.js"></script -->
+  <script type="text/javascript" charset="utf-8" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+  
+  <script type="text/javascript" charset="utf-8" src="js/macromap.min.js"></script>
+  
+  <!--script type="text/javascript" charset="utf-8" src="raphael.js"></script>
+  <script type="text/javascript" charset="utf-8" src="globals.js"></script>
+  <script type="text/javascript" charset="utf-8" src="actions.js"></script>
+  <script type="text/javascript" charset="utf-8" src="model.js"></script>
+  <script type="text/javascript" charset="utf-8" src="view.js"></script>
+  <script type="text/javascript" charset="utf-8" src="races.js"></script-->
+</head>
+<body style="margin:0; text-align:center">
+  <h2>Macromap - Starcraft 2 Build Order Tool</h2>
+  <!--[if IE]>
+  <h2>Seems like you're using Internet Explorer.</h2>
+  <p>
+    Although this tool works with IE in principle, I can't bother fixing IE bugs at this stage.<br>
+    Anyway, why the hell are you using the worst browser on the planet? Here, get a better one:<br>
+    <a href="http://mozilla.com">Firefox</a> or
+    <a href="http://www.google.com/chrome">Chrome</a> or
+    <a href="http://www.apple.com/safari/">Safari</a> or
+    <a href="http://opera.com/">Opera</a>
+  </p>
+  <![endif]-->
+  <div id="mm_tooltip"></div>
+  <div id="mm_widget"></div>
+  <div class="mm_main" id="the-macromap">
+    <div class="mm_toolbar" style="color:white">
+      <a href="javascript:;" id="mm_do_stuff">Do Stuff</a> | 
+      <a href="javascript:;" id="mm_undo">Undo</a> | 
+      <a href="javascript:;" id="mm_hide">Hide selected units</a> | 
+      <a href="javascript:;" id="mm_show" style="display:none"></a>
+      <a href="javascript:;" id="mm_save">Save your build order</a> | 
+      <a href="javascript:;" id="mm_load">Load a build order</a>
+    </div>
+    <div class="mm_buttons"></div>
+    <div class="mm_wrapper">
+      <div class="mm_container"></div>
+      <div class="mm_timestrip"></div>
+    </div>
+    <div class="mm_stats">
+      <div class="mm_stat"><span class='key'>Time:</span> <span class='value mm_clock'></span></div>
+      <div class="mm_stat"><span class='key'>Minerals:</span> <span class='value mm_minerals'></span></div>
+      <div class="mm_stat"><span class='key'>Gas:</span> <span class='value mm_gas'></span></div>
+      <div class="mm_stat"><span class='key'>Supply:</span> <span class='value mm_supply'></span></div>
+      <div class="mm_stat_group mm_economy">
+        <h3>Economy</h3>
+      </div>
+      <div class="mm_stat_group mm_buildings">
+        <h3>Buildings</h3>
+      </div>
+      <div class="mm_stat_group mm_army">
+        <h3>Army</h3>
+      </div>
+      <div class="mm_stat_group mm_tech">
+        <h3>Tech</h3>
+      </div>
+    </div>
+    <div class="clear"></div>
+  </div>
+  <div id="about">
+  <h3>How to use</h3>
+  <p>Select units by clicking on their names on the left side.</p>
+  <p>Multiple units can be selected by holding ctrl (command on Macs) but only if they are of the same type.</p>
+  <p>The horizontal strip with numbers on it indicates the current time. Click on it to set the time. A thin black line will appear.</p>
+  <p>You can also click and drag on it to change the time gradually. The status panel on the right side will update.</p>
+  <p>Click on "Do Stuff" after you have selected a unit and selected the desired time of the action. A popup will apear with available commands for that unit.</p>
+  <p>A shortcut for this is to doubleclick on a unit's horizontal timeline. The time will be automatically set and the popup will apear</p>
+  <p>You can Undo your last action by clicking on "Undo", but you can't redo the undone action.</p>
+  <p>Save your build order by copying the serialized Javascript code.</p>
+  <p>Load it by pasting the copied code.</p>
+  <p>Have fun, report bugs.</p>
+  <h3>About Macromap</h3>
+  <p>
+    This is more of a proof of concept than a useful tool.<br /> 
+    This tool requires a SVG enabled browser.<br />
+    I had some trouble with Raphael SVG and IE, but it generally works with IE too.<br />
+    <br />
+    It works only for the Terran race, and it still incomplete. <br />
+    There are no spells, no rich minerals, and a lot of bugs :) But I'm working on it.<br />
+    The resource calculations are also a wild guess, since I don't have a beta key to test how many minerals an SCV mines per minute.
+    Also, the calculation algorithm is far from perfect - it presumes that all mineral fields are equally distanced from the
+    Command Center. The saturation limit calculation is discrete and workers stop adding extra minerals after there is one worker per field.
+    This stuff will get ironed out when I get a hold on the game and do some tests.
+  </p>
+  <h3>Contact</h3>
+  <p>jordanovskid@gmail.com</p>
+  </div>
+  <br><br><br>
+<script type="text/javascript" charset="utf-8">
+var M = new Macromap.M( document.getElementById('the-macromap'), "Terran", 6 );  
+$("#mm_save").click(function(){
+  var pane = $("<div><h4>Copy the following code and save it somewhere.</h4><br ><br ><a href='javascript:;' onclick='$(this).parent().remove()'>close</a></div>");
+  pane.css({
+    position: "absolute", 
+    width: "500px",
+    top: "20px", 
+    left: "50%", 
+    "margin-left": "-250px",
+    padding: "10px",
+    border: "solid 3px #ccc",
+    "background-color": "#fff"
+  });
+  pane.children('h4').after("<textarea style='width:400px; height:200px; margin:auto'>" + M.serialize() + "</textarea>");
+  $("body").append(pane);
+});
+$("#mm_load").click(function(){
+  var pane = $("<div><h4>Paste your build order code here.</h4></div>");
+  pane.css({
+    position: "absolute", 
+    width: "500px",
+    height: "400px", 
+    top: "20px", 
+    left: "50%", 
+    "margin-left": "-250px",
+    padding: "10px",
+    border: "solid 3px #ccc",
+    "background-color": "#fff"
+  });
+  pane.append( $("<textarea id='mm_load_input' style='width:500px; height:300px'></textarea>") );
+  var ok = $("<input type='button' value='Load' />");
+  ok.click(function(){
+    try{
+      eval( "var seq = " + $('#mm_load_input').val() + ";" );
+      M.load( seq ).play().empty().draw();
+    } catch (e){
+      alert("Code contains errors");
+    }      
+    pane.remove();
+  })
+  pane.append( ok );
+  $("body").append(pane);
+})
+M.load().play().init().draw();
+</script>
+<div id="comments">
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+  /**
+    * var disqus_identifier; [Optional but recommended: Define a unique identifier (e.g. post id or slug) for this thread] 
+    */
+  (function() {
+   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+   dsq.src = 'http://orbitalcommand.disqus.com/embed.js';
+   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+  })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=orbitalcommand">comments powered by Disqus.</a></noscript>
+<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
+<script type="text/javascript">
+//<![CDATA[
+(function() {
+	var links = document.getElementsByTagName('a');
+	var query = '?';
+	for(var i = 0; i < links.length; i++) {
+	if(links[i].href.indexOf('#disqus_thread') >= 0) {
+		query += 'url' + i + '=' + encodeURIComponent(links[i].href) + '&';
+	}
+	}
+	document.write('<script charset="utf-8" type="text/javascript" src="http://disqus.com/forums/orbitalcommand/get_num_replies.js' + query + '"></' + 'script>');
+})();
+//]]>
+</script>
+</div>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-794635-3");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>

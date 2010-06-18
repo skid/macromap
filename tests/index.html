@@ -1,0 +1,112 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" 
+                    "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link rel="stylesheet" href="qunit.css" type="text/css" media="screen" />
+<script src="../jquery.js"></script>
+<script type="text/javascript" charset="utf-8" src="../globals.js"></script>
+<script type="text/javascript" charset="utf-8" src="../actions.js"></script>
+<script type="text/javascript" charset="utf-8" src="../model.js"></script>
+<script type="text/javascript" charset="utf-8" src="../races.js"></script>
+<script type="text/javascript" src="qunit.js"></script>
+<script type="text/javascript" charset="utf-8">
+$(document).ready(function(){
+  module("Testing the getState() method");
+  
+  test("One Base, 6 on minerals, 6 saturation", function() {
+    var M = new Macromap.M( document.getElementById('the-macromap'), "Terran", 6 );
+    M.load( [[ "Scv1", 0, "Minerals", "Base1"], [ "Scv2", 0, "Minerals", "Base1" ],
+            [ "Scv3", 0, "Minerals", "Base1" ], [ "Scv4", 0, "Minerals", "Base1" ],
+            [ "Scv5", 0, "Minerals", "Base1" ], [ "Scv6", 0, "Minerals", "Base1" ]] );
+    M.play();
+    equals( M.getState(4).minerals, 50, "We expect no mining returns before sec 5" );
+    equals( M.getState(6).minerals, 65, "We expect 3 mining returns after sec 5 (+15 minerals)" );
+    equals( M.getState(26).minerals, 185, "We expect total 200 minerals after sec 25" );
+  });
+  
+  test("One Base, 8 on minerals, 6 saturation", function() {
+    var M = new Macromap.M( document.getElementById('the-macromap'), "Terran", 6 );
+    M.load( [[ "Scv1", 0, "Minerals", "Base1"], [ "Scv2", 0, "Minerals", "Base1" ],
+            [ "Scv3", 0, "Minerals", "Base1" ], [ "Scv4", 0, "Minerals", "Base1" ],
+            [ "Scv5", 0, "Minerals", "Base1" ], [ "Scv6", 0, "Minerals", "Base1" ],
+            [ "Base1", 0, "Build", "Scv" ], [ "Base1", 17, "Build", "Scv" ],
+            [ "Scv7", 17, "Minerals", "Base1" ], [ "Scv8", 34, "Minerals", "Base1" ]] );
+    M.play();
+    equals( M.getState(11).minerals, 45, "Starting 50. Spent 50, got 60 from 2 mining returns of 6 workers" );
+    equals( M.getState(17).minerals, 40, "Starting 50. Spent 100, got 90 from 3 mining returns of 6 workers" );
+    equals( M.getState(31).minerals, 115, "Seventh worker not contributing. Saturation reached. 3 return trips = +90" );
+    equals( M.getState(70).minerals, 340, "Eighth worker not contributing. Saturation reached. 7 return trips = +210" );
+  });
+  
+  test("One Base, many on minerals, 3 simultaneous on gas, 4th later. 6 saturation", function() {
+    var M = new Macromap.M( document.getElementById('the-macromap'), "Terran", 6 );
+    M.load( [[ "Scv1", 0, "Minerals", "Base1"],[ "Scv2", 0, "Minerals", "Base1" ],
+      [ "Scv3", 0, "Minerals", "Base1" ],[ "Scv4", 0, "Minerals", "Base1" ],
+      [ "Scv5", 0, "Minerals", "Base1" ],[ "Scv6", 0, "Minerals", "Base1" ],
+      [ "Base1", 0, "Build", "Scv" ],[ "Base1", 17, "Build", "Scv" ],
+      [ "Base1", 34, "Build", "Scv" ],[ "Base1", 51, "Build", "Scv" ],
+      [ "Scv7", 17, "Minerals", "Base1" ],[ "Scv8", 34, "Minerals", "Base1" ],
+      [ "Scv9", 51, "Build", "SupplyDepot" ],[ "Scv9", 81, "Minerals", "Base1" ],
+      [ "Scv10", 68, "Minerals", "Base1" ],[ "Base1", 81, "Build", "Scv" ],
+      [ "Base1", 98, "Build", "Scv" ],[ "Base1", 115, "Build", "Scv" ],
+      [ "Scv11", 98, "Build", "Refinery" ],[ "Scv11", 132, "Gas", "Refinery1" ],
+      [ "Scv12", 115, "Minerals", "Base1" ],[ "Scv12", 132, "Gas", "Refinery1" ],
+      [ "Scv13", 132, "Gas", "Refinery1" ],[ "Scv13", 180, "Minerals", "Base1" ] ] );
+    M.play();
+    equals( 305, M.getState(132).minerals, "Lots of workers not mining" );
+    equals( M.getState(137).gas, 4, "First gas yield @ 137. Other workers coming in next seconds" );
+    equals( M.getState(140).gas, 8, "Second gas yield @ 140" );
+    equals( M.getState(141).gas, 12, "First worker on gas yields again @ 141" );
+    equals( M.getState(159).gas, 64, "Gas before 4th is assigned @ 159" );
+    equals( M.getState(174).gas, 108, "4th is not contributing gas. Oversaturated @ 174" );
+    equals( M.getState(136).minerals, 320, "Minerals @ 137 - before making an action" );
+    M.registerEvent( "Scv10", 159, "Gas", "Refinery1" ).play();
+    equals( M.getState(197).minerals, 695, "Minerals @ 197 - same shit" );
+    M.registerEvent( "Scv1", 210, "Scout" ).
+      registerEvent( "Scv2", 210, "Scout" ).
+      registerEvent( "Scv3", 210, "Scout" ).
+      registerEvent( "Scv4", 210, "Scout" ).
+      registerEvent( "Scv5", 210, "Scout" ).
+      registerEvent( "Scv6", 210, "Scout" ).
+      registerEvent( "Scv7", 190, "Scout" ).play()
+    equals( M.getState(224).minerals, 785, "Minerals @ 224 - after removing 7 workers" );
+    equals( M.getState(224).gas, 256, "Gas @ 224 - fully saturated at this point" );
+    same( M.getState(224), { buildings: { SupplyDepot: 1 }, 
+                             economy: { CommandCenter: 1, Refinery: 1, Scv: 13 }, 
+                             gas: 256, minerals: 785, supply_max: 18, supply: 13 }, 
+                             "Checking the whole state for correctness" );
+  });
+  
+  test("Two Bases, 6 + 4 saturation. 10 workers. 7 on first, 3 on second", function() {
+    var M = new Macromap.M( document.getElementById('the-macromap'), "Terran", 6 );
+    M.load( [["Scv1",0,"Minerals","Base1"],["Scv2",0,"Minerals","Base1"],
+            ["Scv3",0,"Minerals","Base1"],["Scv4",0,"Minerals","Base1"],
+            ["Scv5",0,"Minerals","Base1"],["Scv6",0,"Minerals","Base1"],
+            ["Base1",0,"Build","Scv"],["Base1",18,"Build","Scv"],
+            ["Base1",36,"Build","Scv"],["Base1",53,"Build","Scv"],
+            ["Scv7",18,"Minerals","Base1"],["Scv8",36,"Minerals","Base1"],
+            ["Scv9",54,"Minerals","Base1"],["Scv10",71,"Minerals","Base1"],
+            ["Scv10",96,"Build","CommandCenter",4,false],["Scv10",197,"Minerals","Base2"],
+            ["RemoveAction","Scv954MineralsBase1"],["Scv9",53,"Minerals","Base1"],
+            ["Scv9",196,"Minerals","Base2"],["Scv8",196,"Minerals","Base2"]] );
+    M.play();
+    equals( M.getState(44).minerals, 140, "Before second base, oversaturated" );
+    equals( M.getState(123).minerals, 170, "Second base in production" );
+    equals( M.getState(198).minerals, 620, "3 workers on Base2, before their first return" );
+    equals( M.getState(203).minerals, 665, "3 workers on Base2, after their first return" );
+    same( M.getState(203), { economy: { CommandCenter: 2, Scv: 10 }, 
+                             gas: 0, minerals: 665, supply_max: 20, supply: 10 }, 
+                             "Checking the whole state for correctness" );
+  });
+  
+});  
+</script>
+</head>
+<body>
+  <div id="the-macromap"></div>
+  <h1 id="qunit-header">QUnit Tests for Macromap</h1>
+  <h2 id="qunit-banner"></h2>
+  <h2 id="qunit-userAgent"></h2>
+  <ol id="qunit-tests"></ol>
+</body>
+</html>
