@@ -4,18 +4,13 @@
 <head>
   <title>MacroMap Starcraft 2</title>
   <link rel="stylesheet" href="css/styles.css" media="screen" />
-  
-  <!--script type="text/javascript" charset="utf-8" src="jquery.js"></script -->
-  <script type="text/javascript" charset="utf-8" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
-  
-  <script type="text/javascript" charset="utf-8" src="js/macromap.min.js"></script>
-  
-  <!--script type="text/javascript" charset="utf-8" src="raphael.js"></script>
+  <script type="text/javascript" charset="utf-8" src="jquery.js"></script>
+  <script type="text/javascript" charset="utf-8" src="raphael.js"></script>
   <script type="text/javascript" charset="utf-8" src="globals.js"></script>
   <script type="text/javascript" charset="utf-8" src="actions.js"></script>
   <script type="text/javascript" charset="utf-8" src="model.js"></script>
   <script type="text/javascript" charset="utf-8" src="view.js"></script>
-  <script type="text/javascript" charset="utf-8" src="races.js"></script-->
+  <script type="text/javascript" charset="utf-8" src="races.js"></script>
 </head>
 <body style="margin:0; text-align:center">
   <h2>Macromap - Starcraft 2 Build Order Tool</h2>
@@ -94,90 +89,51 @@
   <h3>Contact</h3>
   <p>jordanovskid@gmail.com</p>
   </div>
-  <br><br><br>
-<script type="text/javascript" charset="utf-8">
-var M = new Macromap.M( document.getElementById('the-macromap'), "Terran", 6 );  
-$("#mm_save").click(function(){
-  var pane = $("<div><h4>Copy the following code and save it somewhere.</h4><br ><br ><a href='javascript:;' onclick='$(this).parent().remove()'>close</a></div>");
-  pane.css({
-    position: "absolute", 
-    width: "500px",
-    top: "20px", 
-    left: "50%", 
-    "margin-left": "-250px",
-    padding: "10px",
-    border: "solid 3px #ccc",
-    "background-color": "#fff"
-  });
-  pane.children('h4').after("<textarea style='width:400px; height:200px; margin:auto'>" + M.serialize() + "</textarea>");
-  $("body").append(pane);
-});
-$("#mm_load").click(function(){
-  var pane = $("<div><h4>Paste your build order code here.</h4></div>");
-  pane.css({
-    position: "absolute", 
-    width: "500px",
-    height: "400px", 
-    top: "20px", 
-    left: "50%", 
-    "margin-left": "-250px",
-    padding: "10px",
-    border: "solid 3px #ccc",
-    "background-color": "#fff"
-  });
-  pane.append( $("<textarea id='mm_load_input' style='width:500px; height:300px'></textarea>") );
-  var ok = $("<input type='button' value='Load' />");
-  ok.click(function(){
-    try{
-      eval( "var seq = " + $('#mm_load_input').val() + ";" );
-      M.load( seq ).play().empty().draw();
-    } catch (e){
-      alert("Code contains errors");
-    }      
-    pane.remove();
-  })
-  pane.append( ok );
-  $("body").append(pane);
-})
-M.load().play().init().draw();
-</script>
-<div id="comments">
-<div id="disqus_thread"></div>
-<script type="text/javascript">
-  /**
-    * var disqus_identifier; [Optional but recommended: Define a unique identifier (e.g. post id or slug) for this thread] 
-    */
-  (function() {
-   var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-   dsq.src = 'http://orbitalcommand.disqus.com/embed.js';
-   (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-  })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript=orbitalcommand">comments powered by Disqus.</a></noscript>
-<a href="http://disqus.com" class="dsq-brlink">blog comments powered by <span class="logo-disqus">Disqus</span></a>
-<script type="text/javascript">
-//<![CDATA[
-(function() {
-	var links = document.getElementsByTagName('a');
-	var query = '?';
-	for(var i = 0; i < links.length; i++) {
-	if(links[i].href.indexOf('#disqus_thread') >= 0) {
-		query += 'url' + i + '=' + encodeURIComponent(links[i].href) + '&';
-	}
-	}
-	document.write('<script charset="utf-8" type="text/javascript" src="http://disqus.com/forums/orbitalcommand/get_num_replies.js' + query + '"></' + 'script>');
-})();
-//]]>
-</script>
-</div>
-<script type="text/javascript">
-var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-</script>
-<script type="text/javascript">
-try {
-var pageTracker = _gat._getTracker("UA-794635-3");
-pageTracker._trackPageview();
-} catch(err) {}</script>
+  <script type="text/javascript" charset="utf-8">
+    var M = new Macromap.M( document.getElementById('the-macromap'), "Terran", 6 );  
+    $("#mm_save").click(function(){
+      var pane = $("<div><h4>Copy the following code and save it somewhere.</h4><br ><br ><a href='javascript:;' onclick='$(this).parent().remove()'>close</a></div>");
+      pane.css({
+        position: "absolute", 
+        width: "500px",
+        top: "20px", 
+        left: "50%", 
+        "margin-left": "-250px",
+        padding: "10px",
+        border: "solid 3px #ccc",
+        "background-color": "#fff"
+      });
+      pane.children('h4').after("<textarea style='width:400px; height:200px; margin:auto'>" + M.serialize() + "</textarea>");
+      $("body").append(pane);
+    });
+    $("#mm_load").click(function(){
+      var pane = $("<div><h4>Paste your build order code here.</h4></div>");
+      pane.css({
+        position: "absolute", 
+        width: "500px",
+        height: "400px", 
+        top: "20px", 
+        left: "50%", 
+        "margin-left": "-250px",
+        padding: "10px",
+        border: "solid 3px #ccc",
+        "background-color": "#fff"
+      });
+      pane.append( $("<textarea id='mm_load_input' style='width:500px; height:300px'></textarea>") );
+      var ok = $("<input type='button' value='Load' />");
+      ok.click(function(){
+        try{
+          eval( "var seq = " + $('#mm_load_input').val() + ";" );
+          M.load( seq ).play().empty().draw();
+        } catch (e){
+          alert("Code contains errors");
+        }      
+        pane.remove();
+      })
+      pane.append( ok );
+      $("body").append(pane);
+    })
+    M.load().play().init().draw();
+  </script>
 </body>
 </html>
